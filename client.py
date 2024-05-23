@@ -9,14 +9,23 @@ while (STAY):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT)) # Connects to server
-            s.settimeout(3.0)
+            s.settimeout(2)
 
             while (not EXIT):
-
-                #s.sendall(b"Connected...") # Sends message to server
-                #data = s.recv(1024) # Reads server reply 
-                #print(f"Received {data!r} ")
                 answer = input("\nEnter command: ")
+
+                if (answer.lower() == 'exit'):
+                    print("\nExiting client...")
+                    EXIT = True
+                    STAY = False
+                    break
+
+                if ";" in answer:
+                    commandList = answer.split(";")
+                    commandList = [s.strip() for s in commandList]
+                    commandList = bytearray(commandList)
+
+
                 s.sendall(bytes(answer, encoding="ascii")) # Sends message to server
 
                 data = s.recv(1024)
@@ -25,25 +34,17 @@ while (STAY):
                     try:
                         if (decodedData != answer):
                             print(decodedData)
-                        data = s.recv(1024) # Don't want this to block indefinitely
+                        data = s.recv(1024) 
                         decodedData = data.decode("utf-8")
                     except Exception as e:
-                        if ('timed out' in str(e)):
+                        #if ('timed out' in str(e)): # Catch if socket timed out
                             break
-                   
-                if (answer.find('exit') != -1):
-                    print("\nExiting client...")
-                    EXIT = True
-                    STAY = False
-                    break
+                
                     
     except Exception as e: 
-        #if ('timed out' in str(e)):
-            #print("\nServer unavailable1...")
-
+        #if ('timed out' in str(e)): # Catch if socket timed out
         #if ('[WinError 10061]' in str(e)): # Catch if server is not running
         print("\nServer unavailable...")
-
         STAY = False
 
 

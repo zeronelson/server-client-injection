@@ -1,9 +1,11 @@
 import socket
 import subprocess
+import os 
+import signal
 
 HOST = '127.0.0.1' # Standard loopback interface address (localhost)
 PORT = 65432 # Port to listen on (non-privileged ports are > 1023)
-exit = False
+EXIT = False
 STAY = True
 
 # Creates socket object using context manager (helps to manage resources and deallocate after block ends)
@@ -23,49 +25,35 @@ while (STAY):
         try:
             with conn:
                 print(f"\nConnected to {addr}")
-                #conn.settimeout(2.0) 
 
-                while (not exit):
-                    data = conn.recv(1024) # Read data from client (max of 1024 bits to be sent at a time)
-
-                    if data.find(b'exit') != -1:
+                while (not EXIT):
+                    data = conn.recv(1024) # Read data from client (max of 1024 bits)
+                    command = data.decode("utf-8")
+                    
+                    if (command.lower() == 'exit'):
                         print("\nExiting server...")
-                        exit = True
+                        EXIT = True
                         STAY = False
                         break
                     if not data: 
                         print("\nClient unavailable...")
-                        exit = True
+                        EXIT = True
                         STAY = False
                         break
-                        
-                    
-                    command = data.decode("utf-8")
-
-                    print("\nTHE COMMAND: ", command) # TODO -> Does not work for 'date' command
+              
+                    print("\nThe Command: ", command) 
 
                     try:
                         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                        stdout, stderr = p.communicate(timeout=3)
+                        stdout, stderr = p.communicate(timeout=2)
                         print(stdout)
                         conn.sendall(bytes(stdout, encoding="ascii"))
-                        #for x in p.stdout.readlines():
-                        #    print(x)
-                        #    conn.sendall(x)
-                        retval = p.wait()
+                        os.kill(p.pid,1)
                     except Exception as e:
-                        #if ('timed out' in str(e)):
-                        #    print("\nTimed out2")
+                        print("Exception: ", e)
                         pass
-                        
-                        #print("\nTHE REASON: ", e)
-                    
-                    #conn.sendall(data) # Echo data back to client
 
-        except Exception as e: 
-            if ('timed out' in str(e)):
-                print("\nTimed out1")
-                
+        except Exception as e:
+            print("\nException: ", e)
             STAY = False
-            print("\nClient unavailable...")
-            print("\nTHE REASON: ", e)
+            
