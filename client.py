@@ -5,6 +5,7 @@ PORT = 65432 # The port used by the server
 EXIT = False
 STAY = True
 
+# Server is always running, then client checks 
 while (STAY):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -27,10 +28,7 @@ while (STAY):
                         byteCommandList.extend(string.encode("utf-8"))
                         byteCommandList.append(3)
                     s.sendall(byteCommandList)
-                    print(byteCommandList)
-                    print("LINE 31")
                 else:
-                    print("LINE 33")
                     s.sendall(bytes(answer, encoding="ascii")) # Sends message to server
 
                 data = s.recv(1024)
@@ -43,8 +41,7 @@ while (STAY):
                         decodedData = data.decode("utf-8")
                     except Exception as e:
                         #if ('timed out' in str(e)): # Catch if socket timed out
-                            break
-                    
+                            break           
     except Exception as e: 
         #if ('timed out' in str(e)): # Catch if socket timed out
         #if ('[WinError 10061]' in str(e)): # Catch if server is not running
