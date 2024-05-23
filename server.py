@@ -31,28 +31,34 @@ while (STAY):
                     if data.find(b'exit') != -1:
                         print("\nExiting server...")
                         exit = True
+                        STAY = False
                         break
                     if not data: 
                         print("\nClient unavailable...")
                         exit = True
+                        STAY = False
                         break
+                        
                     
                     command = data.decode("utf-8")
 
-                    print("\nTHE COMMAND: ", command) # TODO -> Does not work for 'date' location
+                    print("\nTHE COMMAND: ", command) # TODO -> Does not work for 'date' command
 
                     try:
-                        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                        for x in p.stdout.readlines():
-                            print(x)
-                            conn.sendall(x)
+                        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                        stdout, stderr = p.communicate(timeout=3)
+                        print(stdout)
+                        conn.sendall(bytes(stdout, encoding="ascii"))
+                        #for x in p.stdout.readlines():
+                        #    print(x)
+                        #    conn.sendall(x)
                         retval = p.wait()
                     except Exception as e:
-                        if ('timed out' in str(e)):
-                            print("\nTimed out2")
-                            pass
-                        print("\nInvalid command")
-                        print("\nTHE REASON: ", e)
+                        #if ('timed out' in str(e)):
+                        #    print("\nTimed out2")
+                        pass
+                        
+                        #print("\nTHE REASON: ", e)
                     
                     #conn.sendall(data) # Echo data back to client
 

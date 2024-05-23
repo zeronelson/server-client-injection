@@ -9,7 +9,7 @@ while (STAY):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT)) # Connects to server
-            s.settimeout(2.0)
+            s.settimeout(3.0)
 
             while (not EXIT):
 
@@ -24,7 +24,7 @@ while (STAY):
                 while (len(decodedData) > 0):
                     try:
                         if (decodedData != answer):
-                            print("\n", decodedData)
+                            print(decodedData)
                         data = s.recv(1024) # Don't want this to block indefinitely
                         decodedData = data.decode("utf-8")
                     except Exception as e:
@@ -38,14 +38,12 @@ while (STAY):
                     break
                     
     except Exception as e: 
-        if ('timed out' in str(e)):
-            print("\nTimed out")
-            continue
+        #if ('timed out' in str(e)):
+            #print("\nServer unavailable1...")
 
-        if ('[WinError 10061]' in str(e)): # Catch if server is not running
-            print("\nServer unavailable...")
+        #if ('[WinError 10061]' in str(e)): # Catch if server is not running
+        print("\nServer unavailable...")
 
-        print("Exiting from line 48")
         STAY = False
 
 
