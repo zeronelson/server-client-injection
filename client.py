@@ -9,7 +9,7 @@ while (STAY):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT)) # Connects to server
-            s.settimeout(2)
+            s.settimeout(5)
 
             while (not EXIT):
                 answer = input("\nEnter command: ")
@@ -22,11 +22,16 @@ while (STAY):
 
                 if ";" in answer:
                     commandList = answer.split(";")
-                    commandList = [s.strip() for s in commandList]
-                    commandList = bytearray(commandList)
-
-
-                s.sendall(bytes(answer, encoding="ascii")) # Sends message to server
+                    byteCommandList = bytearray()
+                    for string in commandList:
+                        byteCommandList.extend(string.encode("utf-8"))
+                        byteCommandList.append(3)
+                    s.sendall(byteCommandList)
+                    print(byteCommandList)
+                    print("LINE 31")
+                else:
+                    print("LINE 33")
+                    s.sendall(bytes(answer, encoding="ascii")) # Sends message to server
 
                 data = s.recv(1024)
                 decodedData = data.decode("utf-8")
@@ -39,12 +44,12 @@ while (STAY):
                     except Exception as e:
                         #if ('timed out' in str(e)): # Catch if socket timed out
                             break
-                
                     
     except Exception as e: 
         #if ('timed out' in str(e)): # Catch if socket timed out
         #if ('[WinError 10061]' in str(e)): # Catch if server is not running
         print("\nServer unavailable...")
+        print("\nException: ", e)
         STAY = False
 
 
