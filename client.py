@@ -21,7 +21,7 @@ while (not exit):
                 answer = input("\nEnter command: ")
                 answer = answer.strip()
                 
-                # Perform some type of input validation (ex. 'exit]')
+                # Perform some type of input validation (ex. 'exit]' is no valid input)
                 # BUT HOW?
                 # Can have dictionary of all possible inputs (TOO LIMITING AND THERES SO MANY)
                 # User can recheck input or just don't set timeout in case the command is unsuccessful so the script won't abort
@@ -62,7 +62,10 @@ while (not exit):
         print("\nServer unavailable...")
         print("\nException: ", e)
         logging.info(f"Exception: {e}")
-        exit = False
+
+        # How to handle timeout from bad input/command?
+        continue
+        #exit = False
 
 
 
