@@ -1,40 +1,48 @@
 import socket
 import logging
 
+# IDEA: On client, request to open up a file, which must be sent by server to client. 
+#Then client reads and performs operations to another file, which could then be sent back to server
 HOST = '127.0.0.1' # The server's IP address
 PORT = 65432 # The port used by the server 
-EXIT = False
-STAY = True
+
+# Loop flags
+exit = False
 
 logging.basicConfig(filename='client-log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-while (STAY):
+while (not exit):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT)) # Connects to server
             s.settimeout(2)
 
-            while (not EXIT):
+            while True:
                 answer = input("\nEnter command: ")
-
+                answer = answer.strip()
+                
+                # Perform some type of input validation (ex. 'exit]')
+                # BUT HOW?
+                # Can have dictionary of all possible inputs (TOO LIMITING AND THERES SO MANY)
+                # User can recheck input or just don't set timeout in case the command is unsuccessful so the script won't abort
+                # 
                 if (answer.lower() == 'exit'):
-                    logging.info(f"Received command to exit")
+                    logging.info(f"Successfully exiting after user command '{answer}'")
                     print("\nExiting client...")
-                    EXIT = True
-                    STAY = False
+                    exit = True
                     break
 
                 if ";" in answer:
                     commandList = answer.split(";")
-                    byteCommandList = bytearray()
+                    byteCommandArray = bytearray()
                     for string in commandList:
-                        byteCommandList.extend(string.encode("utf-8"))
-                        byteCommandList.append(3)
-                    s.sendall(byteCommandList)
-                    logging.info(f"Command sent: {byteCommandList}")
+                        byteCommandArray.extend(string.encode("utf-8"))
+                        byteCommandArray.append(3)
+                    s.sendall(byteCommandArray)
+                    logging.info(f"Command sent to server: {byteCommandArray}")
                 else:
                     s.sendall(bytes(answer, encoding="ascii")) # Sends message to server
-                    logging.info(f"Command sent: {answer}")
+                    logging.info(f"Command sent to server: {answer}")
 
                 data = s.recv(1024)
                 decodedData = data.decode("utf-8")
@@ -54,7 +62,7 @@ while (STAY):
         print("\nServer unavailable...")
         print("\nException: ", e)
         logging.info(f"Exception: {e}")
-        STAY = False
+        exit = False
 
 
 
